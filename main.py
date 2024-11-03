@@ -5,7 +5,8 @@ from rich.console import Console
 from icloud import HideMyEmail
 
 MAX_CONCURRENT_TASKS = 10
-WAIT_TIME = 45 * 60  # 45 хвилин (2700 секунд)
+WAIT_TIME = 45 * 60  # time to make new request
+TIME_TO_WAIT = WAIT_TIME / 60
 
 class RichHideMyEmail(HideMyEmail):
     _cookie_file = "cookie.txt"
@@ -64,18 +65,16 @@ class RichHideMyEmail(HideMyEmail):
 
 async def periodic_generate():
     while True:
-        # Створюємо екземпляр класу HideMyEmail для генерації
         async with RichHideMyEmail() as hme:
-            await hme.generate(count=5)  # Генеруємо 5 email'ів кожен раз
+            await hme.generate(count=5)  # Generate 5 accounts per cycle
 
-        # Очікування 45 хвилин перед наступною генерацією
-        print(f"Зачекайте 45 хвилин до наступного запуску...")
+        print(f"Wait {TIME_TO_WAIT} minutes for next cycle")
         await asyncio.sleep(WAIT_TIME)
 
 if __name__ == "__main__":
     try:
         asyncio.run(periodic_generate())
     except KeyboardInterrupt:
-        print("\nЗупинено вручну.")
+        print("\nManual stop.")
 
 
