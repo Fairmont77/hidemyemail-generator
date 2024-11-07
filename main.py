@@ -1,6 +1,8 @@
 import asyncio
 import os
 import datetime
+import random
+
 from typing import Optional, List
 from rich.console import Console
 from rich.prompt import IntPrompt
@@ -9,9 +11,10 @@ from rich.table import Table
 
 from icloud import HideMyEmail
 
-WAIT_TIME = 60 * 60  # Static wait time in seconds (60 minutes)
-GENERATION_DELAY = 10  # Delay between email generations (10 seconds)
-MAX_CONCURRENT_TASKS = 5  # Maximum number of concurrent tasks (now not used)
+
+MINUTES = random.randint(60,120)
+WAIT_TIME = MINUTES * 60  # Static wait time in seconds (60 minutes)
+GENERATION_DELAY = random.randint(10, 30)  # Delay between email generations (10 seconds)
 
 class RichHideMyEmail(HideMyEmail):
     _cookie_file = "cookie.txt"
