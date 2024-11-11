@@ -107,7 +107,7 @@ class RichHideMyEmail(HideMyEmail):
         except KeyboardInterrupt:
             return []
 
-    async def list(self, active: bool = True, search: Optional[str] = None) -> None:
+    async def list(self, active: Optional[bool] = None, search: Optional[str] = None) -> None:
         gen_res = await self.list_email()
         if not gen_res:
             return
@@ -125,8 +125,10 @@ class RichHideMyEmail(HideMyEmail):
         self.table.add_column("Created Date Time")
         self.table.add_column("IsActive")
 
+        emails_to_save = []  # List to hold emails for saving
+
         for row in gen_res["result"]["hmeEmails"]:
-            if row["isActive"] == active:
+            if active is None or row["isActive"] == active:
                 if search is None or (search and search.lower() in row["label"].lower()):
                     created_time = datetime.datetime.fromtimestamp(row["createTimestamp"] / 1000)
                     formatted_time = created_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -136,8 +138,17 @@ class RichHideMyEmail(HideMyEmail):
                         formatted_time,
                         str(row["isActive"]),
                     )
+                    # Add email to the list for saving
+                    emails_to_save.append(
+                        f"{row.get('label', '')},{row['hme']},{formatted_time},{str(row['isActive'])}")
 
+        # Display the table in console
         self.console.print(self.table)
+
+        # Save emails to a file
+        with open("all_emails.txt", "w") as file:
+            file.write("\n".join(emails_to_save))
+        self.log(f"All emails saved to 'all_emails.txt'")
 
     def log_wait_time(self):
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -172,9 +183,18 @@ async def periodic_generate():
 
         await asyncio.sleep(WAIT_TIME)
 
+
 if __name__ == "__main__":
     try:
-        asyncio.run(periodic_generate())
+        choice = input("Enter 'generate' to generate emails or 'list' to list all emails: ").strip().lower()
+
+        if choice == 'generate':
+            asyncio.run(periodic_generate())
+        elif choice == 'list':
+            asyncio.run(list_emails(active=None))  # Pass `None` to show all emails
+        else:
+            print("Invalid choice. Please enter 'generate' or 'list'.")
     except KeyboardInterrupt:
         print("\nManual stop.")
+
 

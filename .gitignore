@@ -6,3 +6,6 @@ emails.txt
 cookie.txt
 **/.DS_Store
 *.spec
+
+.idea
+all_emails.txt
