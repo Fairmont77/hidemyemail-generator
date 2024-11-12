@@ -168,20 +168,21 @@ async def periodic_generate():
     hme = RichHideMyEmail()
     while True:
         async with hme:
-            await hme.generate(count=5)  # Generate 5 emails per cycle
+            await hme.generate(count=random.randint(1, 5))
 
-        # Log the results
+        # Випадковий час очікування для кожного циклу
+        WAIT_TIME = random.randint(60, 120) * 60
+
+        # Запис лога
         hme.log_wait_time()
-
         if hme.rate_limit_reached:
-            hme.log(
-                f"[bold yellow]Rate limit reached. Waiting {WAIT_TIME / 60:.2f} minutes before next cycle.[/]"
-            )
-            hme.rate_limit_reached = False  # Reset rate limit flag
+            hme.log(f"[bold yellow]Rate limit reached. Waiting {WAIT_TIME / 60:.2f} minutes before next cycle.[/]")
+            hme.rate_limit_reached = False
         else:
             hme.log(f"Waiting {WAIT_TIME / 60:.2f} minutes before next cycle...")
 
         await asyncio.sleep(WAIT_TIME)
+
 
 
 if __name__ == "__main__":
